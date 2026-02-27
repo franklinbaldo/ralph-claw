@@ -1,0 +1,21 @@
+services:
+  ralph:
+    image: ghcr.io/anthropics/claude-code:latest
+    # Or swap for Gemini:
+    # image: node:22-slim  # then install gemini CLI in Dockerfile
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - ./workspace:/workspace       # persistent memory + code
+      - ./loop.sh:/loop.sh:ro        # the loop script
+      - ./AGENT.md:/workspace/AGENT.md:ro  # standing orders
+      - ./tasks.md:/workspace/tasks.md     # task list
+    environment:
+      WORKSPACE: /workspace
+      PROVIDER: claude
+      SLEEP_BETWEEN_LOOPS: "10"
+      MAX_LOOPS: "0"                 # 0 = run forever
+      # API keys — set in .env or inject via secrets
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    entrypoint: ["/bin/bash", "/loop.sh"]
