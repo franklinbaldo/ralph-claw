@@ -163,6 +163,31 @@ No database. No platform. Just files and git.
 
 ---
 
+## Terms of Service Compliance
+
+> **IMPORTANT: Read before using ralph-claw with Anthropic Claude Code**
+
+ralph-claw runs AI CLIs in an **automated loop**. This has implications for Terms of Service compliance depending on your authentication method:
+
+| Auth Method | TOS Compliance | Notes |
+|---|---|---|
+| **API Key** (Commercial) | **OK** | API keys are designed for programmatic use. You pay per token. |
+| **Consumer subscription** (Free/Pro/Max) | **NOT OK** | Violates Anthropic's Consumer TOS (automated access + non-ordinary usage) |
+
+**If you use Claude Code with ralph-claw, use an API key from the [Anthropic Console](https://console.anthropic.com/), NOT a consumer subscription (Free, Pro, or Max).**
+
+Anthropic's Consumer Terms of Service explicitly prohibit:
+- Accessing services "through automated or non-human means, whether through a bot, script, or otherwise"
+- Usage patterns that exceed "ordinary, individual usage" assumed by subscription plans
+
+As of February 2026, Anthropic is actively enforcing these restrictions and has banned accounts and third-party tools that facilitate subscription arbitrage.
+
+For a detailed analysis, see [TOS-ANALYSIS.md](TOS-ANALYSIS.md).
+
+> **This also applies to other providers.** Check the terms of service for Gemini, Codex, Qwen, or any other CLI before running them in an automated loop.
+
+---
+
 ## Contributing
 
 Issues and PRs welcome. Keep it simple.
