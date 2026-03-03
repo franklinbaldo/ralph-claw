@@ -10,12 +10,41 @@ services:
       - ./loop.sh:/loop.sh:ro        # the loop script
       - ./AGENT.md:/workspace/AGENT.md:ro  # standing orders
       - ./tasks.md:/workspace/tasks.md     # task list
+      - ./CLAUDE.md:/workspace/CLAUDE.md:ro  # project context for teammates
+      - ./.claude:/workspace/.claude:ro      # claude settings (agent teams)
     environment:
       WORKSPACE: /workspace
       PROVIDER: claude
+      AGENT_MODE: single             # single | team
+      TEAM_SIZE: "3"                 # teammates to spawn in team mode
       SLEEP_BETWEEN_LOOPS: "10"
       MAX_LOOPS: "0"                 # 0 = run forever
+      CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"
       # API keys — set in .env or inject via secrets
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    entrypoint: ["/bin/bash", "/loop.sh"]
+
+  # Agent Teams mode — runs Claude with parallel teammates
+  ralph-team:
+    image: ghcr.io/anthropics/claude-code:latest
+    profiles: ["team"]
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - ./workspace:/workspace
+      - ./loop.sh:/loop.sh:ro
+      - ./AGENT.md:/workspace/AGENT.md:ro
+      - ./tasks.md:/workspace/tasks.md
+      - ./CLAUDE.md:/workspace/CLAUDE.md:ro
+      - ./.claude:/workspace/.claude:ro
+    environment:
+      WORKSPACE: /workspace
+      PROVIDER: claude
+      AGENT_MODE: team
+      TEAM_SIZE: "${TEAM_SIZE:-3}"
+      SLEEP_BETWEEN_LOOPS: "10"
+      MAX_LOOPS: "0"
+      CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     entrypoint: ["/bin/bash", "/loop.sh"]

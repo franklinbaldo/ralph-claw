@@ -137,6 +137,77 @@ See `examples/` for provider-specific configs.
 
 ---
 
+## Agent Teams Mode (Experimental)
+
+ralph-claw now supports [Claude Code Agent Teams](https://code.claude.com/docs/en/agent-teams) for parallel task execution. Instead of working through tasks one-by-one, a team lead spawns multiple teammates that work on independent tasks simultaneously.
+
+### When to use teams
+
+- You have many independent tasks that don't touch the same files
+- Research across multiple areas simultaneously
+- Cross-cutting changes (frontend + backend + tests)
+- Debugging with competing hypotheses
+
+### Quick start with teams
+
+**Option A — Use the team profile:**
+
+```bash
+docker compose --profile team up ralph-team
+```
+
+**Option B — Switch the default service to team mode:**
+
+Set `AGENT_MODE=team` in your `.env`:
+
+```bash
+AGENT_MODE=team
+TEAM_SIZE=3
+```
+
+Then run as usual:
+
+```bash
+docker compose up
+```
+
+### How it works
+
+```
+┌─────────────────────────────────────────────┐
+│           Docker Container                   │
+│                                             │
+│  ┌─────────┐    ┌──────────────────────┐    │
+│  │ loop.sh │───▶│  Claude (Team Lead)  │    │
+│  └────┬────┘    └──────────┬───────────┘    │
+│       │                    │                │
+│       │         ┌──────────┼──────────┐     │
+│       │         ▼          ▼          ▼     │
+│       │    Teammate 1  Teammate 2  Teammate 3│
+│       │    (task A)    (task B)    (task C)  │
+│       │         │          │          │     │
+│       │         └──────────┼──────────┘     │
+│       │◀───────────────────┘                │
+│       │   commit + restart                  │
+│                                             │
+│  ┌────▼────────────────────────────────┐    │
+│  │    /workspace (volume)              │    │
+│  │  tasks.md  AGENT.md  CLAUDE.md      │    │
+│  └─────────────────────────────────────┘    │
+└─────────────────────────────────────────────┘
+```
+
+### Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `AGENT_MODE` | `single` | `single` = one agent per loop, `team` = parallel teammates |
+| `TEAM_SIZE` | `3` | Number of teammates to spawn in team mode |
+
+> **Note:** Agent Teams require Claude Code and an Anthropic API key. Gemini CLI does not support this feature.
+
+---
+
 ## The Ralph Wiggum Principle
 
 The [Ralph Wiggum Loop](https://ghuntley.com/ralph/) (by Geoff Huntley) is the insight that:
